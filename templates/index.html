@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detect Fake News</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            --bg-color: #fafafa;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border-color: #f1f5f9;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+
+        /* Top Navigation Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 6%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(1px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+        }
+        .logo i {
+            color: #ec4899;
+            font-size: 1.6rem;
+        }
+
+        /* Status Badge in Top Right */
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            transition: 0.3s;
+        }
+        .status-pill.online { color: #db2777; background: #fdf2f8; border-color: #fbcfe8; }
+        .status-pill.offline { color: #64748b; background: #f1f5f9; }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .engine-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fdf2f8;
+            color: #d946ef;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            border: 1px solid #fbcfe8;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -2px;
+        }
+        .hero h1 span {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Analysis Card */
+        .main-card {
+            background: var(--card-bg);
+            max-width: 850px;
+            margin: 0 auto 100px;
+            border-radius: 32px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.06);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: #fafafa;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            background: none;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab-btn.active {
+            background: #fff;
+            color: #a855f7;
+            position: relative;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+
+        .form-content { padding: 40px; }
+
+        .input-group { display: none; margin-bottom: 24px; }
+        .input-group.active { display: block; }
+
+        textarea, .url-field {
+            width: 100%;
+            border: 2px solid #f1f5f9;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            transition: 0.3s;
+        }
+        textarea { height: 180px; resize: none; }
+        textarea:focus, .url-field:focus {
+            outline: none;
+            border-color: #d8b4fe;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1);
+        }
+
+        .btn-verify {
+            background: var(--primary-gradient);
+            color: white;
+            width: 100%;
+            padding: 20px;
+            border-radius: 16px;
+            border: none;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+        .btn-verify:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* Feature Footer inside Card */
+        .card-footer {
+            display: flex;
+            justify-content: space-around;
+            padding: 24px;
+            background: #fafafa;
+            border-top: 1px solid var(--border-color);
+        }
+        .feat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .feat-item i { color: #a855f7; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-shield-check"></i> Fake News Detector
+        </div>
+        <div id="status" class="status-pill">
+            <i class="fas fa-wave-pulse"></i> Initializing...
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="engine-badge">
+            <i class="fas fa-bolt"></i> RoBERTa Transformer Model Active
+        </div>
+        <h1>Detect <span>Fake News</span> in Real-Time</h1>
+        <p>Leverage advanced NLP models to extract claims, detect bias, and instantly cross-reference facts against verified journalistic databases.</p>
+    </div>
+
+    <div class="main-card">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="setMode('url', this)">
+                <i class="fas fa-link"></i> Analyze URL
+            </button>
+            <button class="tab-btn" onclick="setMode('text', this)">
+                <i class="fas fa-file-lines"></i> Paste Text
+            </button>
+        </div>
+
+        <form action="/predict" method="POST" class="form-content" id="mainForm">
+            <div id="url-input" class="input-group active">
+                <input type="text" name="news_url" class="url-field" placeholder="Paste article URL here (e.g., https://news.com/...)">
+            </div>
+            
+            <div id="text-input" class="input-group">
+                <textarea name="news_text" placeholder="Paste the full article text here for deep linguistic analysis..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-verify">
+                Verify Fact <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="card-footer">
+            <div class="feat-item"><i class="fas fa-brain"></i> Advanced NLP Pattern Analysis</div>
+            <div class="feat-item"><i class="fas fa-globe"></i> Live Web Fact-Check</div>
+            <div class="feat-item"><i class="fas fa-check-double"></i> Verified Global Sources</div>
+        </div>
+    </div>
+
+    <script>
+        function setMode(mode, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            document.querySelectorAll('.input-group').forEach(i => i.classList.remove('active'));
+            document.getElementById(mode + '-input').classList.add('active');
+            
+            // Clear inputs when switching
+            document.querySelector('textarea').value = "";
+            document.querySelector('.url-field').value = "";
+        }
+
+        function checkStatus() {
+            const el = document.getElementById('status');
+            if(navigator.onLine) {
+                el.className = 'status-pill online';
+                el.innerHTML = '<i class="fas fa-bolt"></i> System Status: Online';
+            } else {
+                el.className = 'status-pill offline';
+                el.innerHTML = '<i class="fas fa-circle-xmark"></i> System Status: Offline';
+            }
+        }
+        window.addEventListener('online', checkStatus);
+        window.addEventListener('offline', checkStatus);
+        checkStatus();
+    </script>
+</body>
+</html>
